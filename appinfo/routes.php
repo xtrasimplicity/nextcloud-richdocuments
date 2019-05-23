@@ -41,6 +41,7 @@ return [
 		['name' => 'wopi#getFile', 'url' => 'wopi/files/{fileId}/contents', 'verb' => 'GET'],
 		['name' => 'wopi#putFile', 'url' => 'wopi/files/{fileId}/contents', 'verb' => 'POST'],
 		['name' => 'wopi#putRelativeFile', 'url' => 'wopi/files/{fileId}', 'verb' => 'POST'],
+		['name' => 'wopi#getTemplate', 'url' => 'wopi/template/{fileId}', 'verb' => 'GET'],
 
 		//settings
 		['name' => 'settings#setPersonalSettings', 'url' => 'ajax/personal.php', 'verb' => 'POST'],
@@ -54,7 +55,7 @@ return [
 		//assets
 		['name' => 'assets#create', 'url' => 'assets', 'verb' => 'POST'],
 		['name' => 'assets#get', 'url' => 'assets/{token}', 'verb' => 'GET'],
-		
+
 		// templates
 		['name' => 'templates#getPreview', 'url' => '/template/preview/{fileId}', 'verb' => 'GET'],
 		['name' => 'templates#add', 'url' => '/template', 'verb' => 'POST'],

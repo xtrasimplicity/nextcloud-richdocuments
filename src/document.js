@@ -288,7 +288,7 @@ const documentsMain = {
 							return
 						}
 						if (msgId === 'UI_Close') {
-							callMobileMessage('close')
+							return callMobileMessage('close')
 						} else if (msgId === 'UI_InsertGraphic') {
 							callMobileMessage('insertGraphic')
 						} else if (msgId === 'UI_Share') {

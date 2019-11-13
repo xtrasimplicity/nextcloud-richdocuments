@@ -46,6 +46,7 @@ use OCP\IURLGenerator;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\IUserManager;
 use OCP\IUserSession;
+use OCP\Lock\LockedException;
 use OCP\Share\Exceptions\ShareNotFound;
 use OCP\Share\IManager;
 
@@ -437,7 +438,13 @@ class WopiController extends Controller {
 				$this->userSession->setUser($editor);
 			}
 
-			$file->putContent($content);
+			try {
+				$this->retryOperation(function () use ($file, $content){
+					$file->putContent($content);
+				});
+			} catch (LockedException $e) {
+				return new JSONResponse(['message' => 'File locked'], Http::STATUS_CONFLICT);
+			}
 
 			if ($isPutRelative) {
 				// generate a token for the new file (the user still has to be
@@ -567,7 +574,13 @@ class WopiController extends Controller {
 				$this->userSession->setUser($editor);
 			}
 
-			$file->putContent($content);
+			try {
+				$this->retryOperation(function () use ($file, $content){
+					$file->putContent($content);
+				});
+			} catch (LockedException $e) {
+				return new JSONResponse(['message' => 'File locked'], Http::STATUS_CONFLICT);
+			}
 
 			// generate a token for the new file (the user still has to be
 			// logged in)
@@ -580,6 +593,24 @@ class WopiController extends Controller {
 		} catch (\Exception $e) {
 			$this->logger->logException($e, ['level' => ILogger::ERROR,	'app' => 'richdocuments', 'message' => 'putRelativeFile failed']);
 			return new JSONResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * @param callable $operation
+	 * @throws LockedException
+	 */
+	private function retryOperation(callable $operation) {
+		for ($i = 0; $i < 5; $i++) {
+			try {
+				$operation();
+				return;
+			} catch (LockedException $e) {
+				if ($i === 4) {
+					throw $e;
+				}
+				usleep(500);
+			}
 		}
 	}
 
